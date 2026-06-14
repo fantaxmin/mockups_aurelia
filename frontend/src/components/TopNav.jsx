@@ -1,6 +1,6 @@
 /* Navegación superior, con menú desplegable en móvil. */
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { Icon } from "./Icon.jsx";
 import { Logo } from "./Logo.jsx";
 
@@ -13,7 +13,6 @@ const LINKS = [
 ];
 
 export function TopNav({ dark = false, active = "Home" }) {
-  const navigate = useNavigate();
   const [open, setOpen] = useState(false);
 
   return (
@@ -27,37 +26,36 @@ export function TopNav({ dark = false, active = "Home" }) {
     >
       <div className="wrap">
         <div className="nav__inner">
-          <a href="/" onClick={(e) => { e.preventDefault(); navigate("/"); }} aria-label="Aurelia home">
+          <Link to="/" aria-label="Aurelia — inicio">
             <Logo dark={dark} />
-          </a>
+          </Link>
 
-          <nav className="nav__links">
+          <nav className="nav__links" aria-label="Principal">
             {LINKS.map((l, i) => (
-              <a
+              <Link
                 key={l.label + i}
-                href={l.to}
+                to={l.to}
                 className={"nav__link" + (l.label === active ? " nav__link--active" : "")}
-                onClick={(e) => { e.preventDefault(); navigate(l.to); }}
+                aria-current={l.label === active ? "page" : undefined}
               >
                 {l.label}
-              </a>
+              </Link>
             ))}
           </nav>
 
           <div className="flex items-center gap-3.5">
-            <a href="/" className="nav__link nav__cta-signin max-[820px]:hidden" style={{ fontWeight: 500 }} onClick={(e) => e.preventDefault()}>
+            <button type="button" className="nav__link nav__cta-signin max-[820px]:hidden" style={{ fontWeight: 500 }}>
               Sign In
-            </a>
-            <button
-              className={"btn " + (dark ? "btn--gold" : "btn--navy") + " max-[820px]:hidden"}
-              style={{ padding: "11px 22px" }}
-              onClick={() => navigate("/rooms")}
-            >
-              Book a Stay
             </button>
+            <Link to="/rooms" className={"btn " + (dark ? "btn--gold" : "btn--navy") + " max-[820px]:hidden"} style={{ padding: "11px 22px" }}>
+              Book a Stay
+            </Link>
             <button
+              type="button"
               className="nav__toggle min-[821px]:hidden"
-              aria-label="Abrir menú"
+              aria-label={open ? "Cerrar menú" : "Abrir menú"}
+              aria-expanded={open}
+              aria-controls="menu-movil"
               onClick={() => setOpen((v) => !v)}
               style={{ color: dark ? "#fff" : "var(--color-ink)", display: "inline-flex" }}
             >
@@ -68,24 +66,25 @@ export function TopNav({ dark = false, active = "Home" }) {
       </div>
 
       {open ? (
-        <div className="min-[821px]:hidden" style={{ background: "var(--color-paper)", borderBottom: "1px solid var(--line)" }}>
+        <nav id="menu-movil" aria-label="Móvil" className="min-[821px]:hidden" style={{ background: "var(--color-paper)", borderBottom: "1px solid var(--line)" }}>
           <div className="wrap" style={{ padding: "12px 0 18px", display: "flex", flexDirection: "column", gap: 4 }}>
             {LINKS.map((l, i) => (
-              <a
+              <Link
                 key={l.label + i}
-                href={l.to}
+                to={l.to}
                 className="nav__link"
                 style={{ color: "var(--color-ink)", padding: "10px 0" }}
-                onClick={(e) => { e.preventDefault(); setOpen(false); navigate(l.to); }}
+                aria-current={l.label === active ? "page" : undefined}
+                onClick={() => setOpen(false)}
               >
                 {l.label}
-              </a>
+              </Link>
             ))}
-            <button className="btn btn--navy" style={{ marginTop: 8 }} onClick={() => { setOpen(false); navigate("/rooms"); }}>
+            <Link to="/rooms" className="btn btn--navy" style={{ marginTop: 8 }} onClick={() => setOpen(false)}>
               Book a Stay
-            </button>
+            </Link>
           </div>
-        </div>
+        </nav>
       ) : null}
     </header>
   );

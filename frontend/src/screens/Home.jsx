@@ -1,5 +1,5 @@
 /* Pantalla 1 — Home / Landing. */
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { TopNav } from "../components/TopNav.jsx";
 import { Footer } from "../components/Footer.jsx";
 import { Img } from "../components/ui/Img.jsx";
@@ -75,16 +75,16 @@ export default function Home() {
       <div style={{ height: 70 }} />
 
       {/* FEATURED ROOMS */}
-      <section className="wrap section" style={{ paddingTop: 60 }}>
+      <section className="wrap section" aria-label="Habitaciones destacadas" style={{ paddingTop: 60 }}>
         <div className="flex justify-between items-end flex-wrap gap-4" style={{ marginBottom: 44 }}>
           <SectionHead eyebrow="Rooms & Suites" title="Featured stays" sub="Three of our most-requested rooms, each with Aurelia's signature comforts." />
-          <button className="btn btn--ghost" onClick={() => navigate("/rooms")} style={{ flex: "none" }}>
+          <Link to="/rooms" className="btn btn--ghost" style={{ flex: "none" }}>
             View all rooms <Icon name="arrowRight" size={16} />
-          </button>
+          </Link>
         </div>
-        <div className="grid gap-7 grid-cols-1 md:grid-cols-3">
-          {featured.map((r) => <FeaturedRoomCard key={r.id} room={r} onOpen={openRoom} />)}
-        </div>
+        <ul className="grid gap-7 grid-cols-1 md:grid-cols-3" style={{ listStyle: "none", margin: 0, padding: 0 }}>
+          {featured.map((r) => <li key={r.id}><FeaturedRoomCard room={r} onOpen={openRoom} /></li>)}
+        </ul>
       </section>
 
       {/* EXPERIENCE STRIP */}
@@ -97,16 +97,16 @@ export default function Home() {
               onDark
               sub="From the linen on your bed to the light at golden hour on the terrace — we obsess over the small things so your stay feels effortless."
             />
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-7" style={{ marginTop: 40 }}>
+            <ul className="grid grid-cols-1 sm:grid-cols-2 gap-7" style={{ listStyle: "none", margin: 0, padding: 0, marginTop: 40 }}>
               {EXPERIENCIAS.map(([ic, t]) => (
-                <div key={t} style={{ display: "flex", gap: 14, alignItems: "center" }}>
+                <li key={t} style={{ display: "flex", gap: 14, alignItems: "center" }}>
                   <span style={{ width: 44, height: 44, borderRadius: 999, display: "grid", placeItems: "center", border: "1px solid var(--line-on-dark)", color: "var(--color-gold2)", flex: "none" }}>
                     <Icon name={ic} size={20} />
                   </span>
                   <span style={{ color: "#fff", fontSize: 15.5, fontWeight: 500 }}>{t}</span>
-                </div>
+                </li>
               ))}
-            </div>
+            </ul>
           </div>
           <Img label="terrace · rooftop pool" tone="ph--dark" style={{ height: 420, borderRadius: "var(--radius-aurelia-lg)" }} />
         </div>

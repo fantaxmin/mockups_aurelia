@@ -23,13 +23,15 @@ export function SearchForm({ search, setSearch, onSubmit, floating }) {
         borderRadius: "var(--radius-aurelia-lg)",
       }}
     >
-      <FieldCell icon="pin" label="Destination">
-        <input className="sf-input" value={search.destination} onChange={(e) => setSearch({ ...search, destination: e.target.value })} placeholder="Where to?" />
+      <FieldCell icon="pin" label="Destination" htmlFor="sf-destination">
+        <input id="sf-destination" className="sf-input" aria-label="Destination" value={search.destination} onChange={(e) => setSearch({ ...search, destination: e.target.value })} placeholder="Where to?" />
       </FieldCell>
-      <FieldCell icon="cal" label="Check-in" divider>
+      <FieldCell icon="cal" label="Check-in" htmlFor="sf-checkin" divider>
         <input
+          id="sf-checkin"
           type="date"
           className="sf-input"
+          aria-label="Check-in date"
           value={search.checkIn}
           onChange={(e) => {
             const ci = e.target.value;
@@ -37,14 +39,17 @@ export function SearchForm({ search, setSearch, onSubmit, floating }) {
           }}
         />
       </FieldCell>
-      <FieldCell icon="cal" label="Check-out" divider>
-        <input type="date" className="sf-input" min={sumarDias(search.checkIn, 1)} value={search.checkOut} onChange={(e) => setSearch({ ...search, checkOut: e.target.value })} />
+      <FieldCell icon="cal" label="Check-out" htmlFor="sf-checkout" divider>
+        <input id="sf-checkout" type="date" className="sf-input" aria-label="Check-out date" min={sumarDias(search.checkIn, 1)} value={search.checkOut} onChange={(e) => setSearch({ ...search, checkOut: e.target.value })} />
       </FieldCell>
       <div className="relative md:border-l" style={{ borderColor: "var(--line-2)" }}>
         <FieldCell icon="users" label="Guests">
           <button
             type="button"
             className="sf-input"
+            aria-label="Seleccionar huéspedes y habitaciones"
+            aria-haspopup="true"
+            aria-expanded={guestsOpen}
             style={{ textAlign: "left", background: "transparent", border: 0, padding: 0, color: "var(--color-ink)" }}
             onClick={() => setGuestsOpen((v) => !v)}
           >

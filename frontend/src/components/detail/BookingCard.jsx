@@ -77,7 +77,7 @@ export function BookingCard({ room, search, setSearch, onConfirm }) {
         <span className="display tnum" style={{ fontSize: 26 }}>{money(totals.total)}</span>
       </div>
 
-      <button className="btn btn--gold btn--lg btn--block" onClick={() => onConfirm(totals)}>Confirm Reservation</button>
+      <button type="button" className="btn btn--gold btn--lg btn--block" onClick={() => onConfirm(totals)}>Confirm Reservation</button>
       <div className="muted" style={{ fontSize: 12, textAlign: "center", marginTop: 12, display: "flex", alignItems: "center", justifyContent: "center", gap: 6 }}>
         <Icon name="lock" size={13} /> You won't be charged yet
       </div>

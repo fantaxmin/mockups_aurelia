@@ -89,12 +89,15 @@ const MAP = {
 };
 
 /**
- * @param {string} name  Nombre interno del ícono.
+ * @param {string} name   Nombre interno del ícono.
  * @param {number} [size=18]
  * @param {number} [sw=1.6] Grosor del trazo.
+ * @param {string} [label] Texto accesible. Si se omite, el ícono es decorativo
+ *                         (aria-hidden) y no lo anuncian los lectores de pantalla.
  */
-export function Icon({ name, size = 18, sw = 1.6, ...p }) {
+export function Icon({ name, size = 18, sw = 1.6, label, ...p }) {
   const Cmp = MAP[name];
   if (!Cmp) return null;
-  return <Cmp size={size} strokeWidth={sw} {...p} />;
+  const a11y = label ? { "aria-label": label, role: "img" } : { "aria-hidden": true, focusable: false };
+  return <Cmp size={size} strokeWidth={sw} {...a11y} {...p} />;
 }

@@ -70,12 +70,12 @@ export default function Results() {
             <span style={{ display: "inline-flex", alignItems: "center", gap: 7 }}><Icon name="cal" size={16} />{fmtShort(search.checkIn)} – {fmtShort(search.checkOut)}</span>
             <span className="divider-v" style={{ height: 16 }} />
             <span style={{ display: "inline-flex", alignItems: "center", gap: 7 }}><Icon name="users" size={16} />{totalGuests} guests · {search.rooms} room{search.rooms > 1 ? "s" : ""}</span>
-            <button className="btn btn--ghost" style={{ padding: "7px 14px", fontSize: 13 }} onClick={() => navigate("/")}>Modify</button>
+            <button type="button" className="btn btn--ghost" style={{ padding: "7px 14px", fontSize: 13 }} onClick={() => navigate("/")}>Modify</button>
           </div>
           <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-            <span className="muted" style={{ fontSize: 13.5 }}>Sort by</span>
+            <label htmlFor="sort" className="muted" style={{ fontSize: 13.5 }}>Sort by</label>
             <div style={{ width: 210 }}>
-              <Select value={sort} onChange={(e) => setSort(e.target.value)}>
+              <Select id="sort" aria-label="Ordenar resultados" value={sort} onChange={(e) => setSort(e.target.value)}>
                 {Object.entries(SORTS).map(([k, v]) => <option key={k} value={k}>{v}</option>)}
               </Select>
             </div>
@@ -85,7 +85,7 @@ export default function Results() {
 
       <div className="wrap grid-results grid gap-9 items-start grid-cols-1 lg:grid-cols-[286px_1fr]" style={{ padding: "36px 40px 96px" }}>
         {/* FILTROS */}
-        <aside className="filters-aside lg:sticky" style={{ top: 158 }}>
+        <aside className="filters-aside lg:sticky" aria-label="Filtros de búsqueda" style={{ top: 158 }}>
           <FilterPanel
             min={MIN}
             max={MAX}
@@ -109,16 +109,17 @@ export default function Results() {
             <h1 className="display" style={{ fontSize: 27, margin: 0 }}>{filtered.length} room{filtered.length !== 1 ? "s" : ""} available</h1>
             <span className="muted" style={{ fontSize: 14 }}>{fmtLong(search.checkIn)} → {fmtLong(search.checkOut)}</span>
           </div>
-          <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
-            {filtered.map((r) => <ResultCard key={r.id} room={r} search={search} onOpen={openRoom} onReserve={openRoom} />)}
-            {filtered.length === 0 ? (
-              <div className="card" style={{ padding: 56, textAlign: "center" }}>
-                <h3 className="display" style={{ fontSize: 20, margin: "0 0 8px" }}>No rooms match your filters</h3>
-                <p className="muted" style={{ margin: "0 0 20px" }}>Try widening your price range or removing a filter.</p>
-                <button className="btn btn--navy" onClick={reset}>Clear filters</button>
-              </div>
-            ) : null}
-          </div>
+          {filtered.length > 0 ? (
+            <ul style={{ listStyle: "none", margin: 0, padding: 0, display: "flex", flexDirection: "column", gap: 20 }}>
+              {filtered.map((r) => <li key={r.id}><ResultCard room={r} search={search} onOpen={openRoom} onReserve={openRoom} /></li>)}
+            </ul>
+          ) : (
+            <div className="card" style={{ padding: 56, textAlign: "center" }}>
+              <h3 className="display" style={{ fontSize: 20, margin: "0 0 8px" }}>No rooms match your filters</h3>
+              <p className="muted" style={{ margin: "0 0 20px" }}>Try widening your price range or removing a filter.</p>
+              <button type="button" className="btn btn--navy" onClick={reset}>Clear filters</button>
+            </div>
+          )}
         </main>
       </div>
       <Footer />
