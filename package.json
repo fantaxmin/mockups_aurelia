@@ -1,0 +1,20 @@
+{
+  "name": "hotel-aurelia",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Hotel Aurelia — sistema de reservas en línea (RUP). Frontend React + backend Express + SQLite con TTL.",
+  "author": "Nicolás Andres Torres López",
+  "license": "MIT",
+  "type": "module",
+  "scripts": {
+    "dev": "concurrently -n backend,frontend -c blue,magenta \"pnpm --filter backend dev\" \"pnpm --filter frontend dev\"",
+    "dev:backend": "pnpm --filter backend dev",
+    "dev:frontend": "pnpm --filter frontend dev",
+    "build": "pnpm --filter frontend build",
+    "test": "NODE_OPTIONS=--experimental-vm-modules jest"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.2",
+    "jest": "^29.7.0"
+  }
+}

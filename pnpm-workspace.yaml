@@ -1,0 +1,9 @@
+packages:
+  - "frontend"
+  - "backend"
+# Scripts de build nativos aprobados (necesarios para compilar/ejecutar):
+#  - better-sqlite3: compila los bindings nativos de SQLite
+#  - esbuild: binario usado por Vite
+allowBuilds:
+  better-sqlite3: true
+  esbuild: true
