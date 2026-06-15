@@ -1,11 +1,11 @@
 /* Navegación superior, con menú desplegable en móvil. */
 import { useState, useEffect } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { Icon } from "./Icon.jsx";
 import { Logo } from "./Logo.jsx";
 import { useBooking } from "../context/BookingContext.jsx";
 import { useToast } from "./Toast.jsx";
-import buscarDisponibilidad from "@shared/logic/buscarDisponibilidad.js";
+import { useBusqueda } from "../hooks/useBusqueda.js";
 
 const LINKS = [
   { label: "Home", to: "/" },
@@ -27,29 +27,15 @@ const iniciales = (nombre) =>
 export function TopNav({ dark = false, active = "Home" }) {
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
-  const { user, logout, search } = useBooking();
+  const { user, logout } = useBooking();
   const toast = useToast();
-  const navigate = useNavigate();
+  // "Book a Stay" dispara la búsqueda con los criterios actuales (igual que
+  // "Search Availability"): valida y lleva a resultados, o muestra el error.
+  const handleBookStay = useBusqueda();
 
   function handleSignOut() {
     logout();
     toast.success("Sesión cerrada");
-  }
-
-  // "Book a Stay" dispara la búsqueda con los criterios actuales (igual que
-  // "Search Availability"): valida y lleva a resultados, o muestra el error.
-  function handleBookStay() {
-    try {
-      buscarDisponibilidad({
-        destino: search.destination,
-        checkIn: search.checkIn,
-        checkOut: search.checkOut,
-        huespedes: search.adults + search.children,
-      });
-      navigate("/rooms");
-    } catch (err) {
-      toast.error(err.message);
-    }
   }
 
   // La nav es sticky: al hacer scroll dejamos un fondo sólido para que no

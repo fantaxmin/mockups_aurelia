@@ -2,7 +2,7 @@
  * Helpers de presentación (formato de moneda y fechas) para la UI.
  * La aritmética de fechas reutiliza la lógica compartida del monorepo.
  */
-import { desdeISO, sumarDias, noches } from "@shared/logic/fechas.js";
+import { desdeISO, sumarDias, noches, hoyISO } from "@shared/logic/fechas.js";
 
 export const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 export const DAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
@@ -27,4 +27,4 @@ export function nombreDia(iso) {
   return DAYS[desdeISO(iso).getDay()];
 }
 
-export { sumarDias, noches };
+export { sumarDias, noches, hoyISO };

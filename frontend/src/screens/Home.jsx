@@ -8,10 +8,9 @@ import { Icon } from "../components/Icon.jsx";
 import { SearchForm } from "../components/search/SearchForm.jsx";
 import { FeaturedRoomCard } from "../components/rooms/FeaturedRoomCard.jsx";
 import { useBooking } from "../context/BookingContext.jsx";
-import { useToast } from "../components/Toast.jsx";
+import { useBusqueda } from "../hooks/useBusqueda.js";
 import { HABITACIONES } from "@shared/data/habitaciones.js";
 import { UBICACION } from "@shared/data/hotel.js";
-import buscarDisponibilidad from "@shared/logic/buscarDisponibilidad.js";
 
 const EXPERIENCIAS = [
   ["pool", "Rooftop pool & spa"],
@@ -22,25 +21,10 @@ const EXPERIENCIAS = [
 
 export default function Home() {
   const navigate = useNavigate();
-  const toast = useToast();
   const { search, setSearch, setRoom } = useBooking();
+  const onSearch = useBusqueda();
 
   const featured = HABITACIONES.filter((r) => ["classic-double", "deluxe-king", "junior-suite"].includes(r.id));
-
-  function onSearch() {
-    try {
-      // CU-01 — valida los criterios; lanza Error si algo es inválido.
-      buscarDisponibilidad({
-        destino: search.destination,
-        checkIn: search.checkIn,
-        checkOut: search.checkOut,
-        huespedes: search.adults + search.children,
-      });
-      navigate("/rooms");
-    } catch (err) {
-      toast.error(err.message);
-    }
-  }
 
   function openRoom(room) {
     setRoom(room);

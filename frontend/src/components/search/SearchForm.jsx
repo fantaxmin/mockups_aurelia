@@ -3,15 +3,9 @@ import { useEffect, useRef, useState } from "react";
 import { FieldCell } from "./FieldCell.jsx";
 import { Counter } from "../ui/Counter.jsx";
 import { Icon } from "../Icon.jsx";
-import { sumarDias } from "../../lib/format.js";
+import { sumarDias, hoyISO } from "../../lib/format.js";
 import { getDestinos } from "../../lib/api.js";
 import { NOMBRES_DESTINO, esDestinoValido } from "@shared/data/destinos.js";
-
-function hoyISO() {
-  const d = new Date();
-  const p = (n) => String(n).padStart(2, "0");
-  return d.getFullYear() + "-" + p(d.getMonth() + 1) + "-" + p(d.getDate());
-}
 
 export function SearchForm({ search, setSearch, onSubmit, floating }) {
   const [guestsOpen, setGuestsOpen] = useState(false);

@@ -10,7 +10,7 @@ import { FilterPanel } from "../components/filters/FilterPanel.jsx";
 import { useBooking } from "../context/BookingContext.jsx";
 import { fmtShort, fmtLong } from "../lib/format.js";
 import { HABITACIONES } from "@shared/data/habitaciones.js";
-import { resolverDestino, nombreDestino } from "@shared/data/destinos.js";
+import { resolverDestino } from "@shared/data/destinos.js";
 import { HOTEL } from "@shared/data/hotel.js";
 import filtrarHabitaciones from "@shared/logic/filtrarHabitaciones.js";
 
