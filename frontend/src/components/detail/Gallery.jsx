@@ -8,11 +8,14 @@ export function Gallery({ room }) {
   const [active, setActive] = useState(0);
   return (
     <div className="grid gap-4 grid-cols-[80px_1fr] sm:grid-cols-[96px_1fr]">
-      <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+      <div style={{ display: "flex", flexDirection: "column", gap: 12 }} role="group" aria-label="Miniaturas">
         {GALERIA.map((g, i) => (
           <button
             key={g}
+            type="button"
             onClick={() => setActive(i)}
+            aria-label={"Ver " + g}
+            aria-pressed={active === i}
             style={{
               border: 0,
               padding: 0,

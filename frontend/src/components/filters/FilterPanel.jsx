@@ -15,7 +15,7 @@ export function FilterPanel({ min, max, maxPrice, setMaxPrice, types, setTypes, 
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
         <h3 className="display" style={{ fontSize: 18, margin: 0 }}>Filters</h3>
         {activeCount > 0 ? (
-          <button onClick={onReset} style={{ border: 0, background: "none", color: "var(--color-goldink)", fontSize: 13, fontWeight: 600 }}>
+          <button type="button" onClick={onReset} style={{ border: 0, background: "none", color: "var(--color-goldink)", fontSize: 13, fontWeight: 600 }}>
             Clear ({activeCount})
           </button>
         ) : null}
@@ -42,19 +42,27 @@ export function FilterPanel({ min, max, maxPrice, setMaxPrice, types, setTypes, 
       </FilterGroup>
 
       <FilterGroup title="Guest rating" last>
-        {[4.5, 4, 3.5, 0].map((r) => (
-          <label key={r} className="check" onClick={() => setMinRating(r)}>
-            <span
-              className="check__box"
-              style={{ borderRadius: 999, background: minRating === r ? "var(--color-navy-900)" : "#fff", borderColor: minRating === r ? "var(--color-navy-900)" : "var(--line)" }}
-            >
-              {minRating === r ? <span style={{ width: 7, height: 7, borderRadius: 999, background: "#fff" }} /> : null}
-            </span>
-            <span className="check__label" style={{ display: "inline-flex", alignItems: "center", gap: 8 }}>
-              {r === 0 ? "Any rating" : <><Stars value={r} size={13} /> {r}+</>}
-            </span>
-          </label>
-        ))}
+        <div role="radiogroup" aria-label="Guest rating">
+          {[4.5, 4, 3.5, 0].map((r) => (
+            <label key={r} className="check">
+              <input
+                type="radio"
+                name="guest-rating"
+                checked={minRating === r}
+                onChange={() => setMinRating(r)}
+              />
+              <span
+                className="check__box"
+                style={{ borderRadius: 999, background: minRating === r ? "var(--color-navy-900)" : "#fff", borderColor: minRating === r ? "var(--color-navy-900)" : "var(--line)" }}
+              >
+                {minRating === r ? <span style={{ width: 7, height: 7, borderRadius: 999, background: "#fff" }} aria-hidden="true" /> : null}
+              </span>
+              <span className="check__label" style={{ display: "inline-flex", alignItems: "center", gap: 8 }}>
+                {r === 0 ? "Any rating" : <><Stars value={r} size={13} /> {r}+</>}
+              </span>
+            </label>
+          ))}
+        </div>
       </FilterGroup>
     </div>
   );

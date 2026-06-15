@@ -9,6 +9,7 @@ import fs from "node:fs";
 import path from "node:path";
 import Database from "better-sqlite3";
 import { DB_PATH, TTL_MS, SWEEP_INTERVAL_MS } from "./config.js";
+import { DESTINOS } from "../../shared/data/destinos.js";
 
 // Asegura que exista la carpeta de datos.
 fs.mkdirSync(path.dirname(DB_PATH), { recursive: true });
@@ -44,7 +45,34 @@ db.exec(`
     created_at        INTEGER NOT NULL,
     expires_at        INTEGER NOT NULL
   );
+
+  CREATE TABLE IF NOT EXISTS destinos (
+    id     INTEGER PRIMARY KEY AUTOINCREMENT,
+    nombre TEXT NOT NULL UNIQUE
+  );
 `);
+
+// --- Destinos (catálogo del buscador) -----------------------------------
+// Se siembra desde la lista compartida; INSERT OR IGNORE lo hace idempotente.
+const insertDestino = db.prepare("INSERT OR IGNORE INTO destinos (nombre) VALUES (?)");
+db.transaction((lista) => { for (const n of lista) insertDestino.run(n); })(DESTINOS);
+
+/**
+ * Lista destinos del catálogo, opcionalmente filtrados por texto (autocompletado).
+ * @param {string} [q]      Texto a buscar (coincidencia parcial, sin distinguir caso).
+ * @param {number} [limit]  Máximo de resultados (tope 50).
+ */
+export function listarDestinos(q = "", limit = 20) {
+  const lim = Math.min(Number(limit) || 20, 50);
+  const texto = String(q || "").trim();
+  if (texto) {
+    return db
+      .prepare("SELECT nombre FROM destinos WHERE nombre LIKE ? ORDER BY nombre LIMIT ?")
+      .all("%" + texto + "%", lim)
+      .map((r) => r.nombre);
+  }
+  return db.prepare("SELECT nombre FROM destinos ORDER BY nombre LIMIT ?").all(lim).map((r) => r.nombre);
+}
 
 // --- Usuario de prueba (semilla) ----------------------------------------
 // Se recrea en cada arranque para que siempre exista uno disponible.

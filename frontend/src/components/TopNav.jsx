@@ -1,63 +1,133 @@
 /* Navegación superior, con menú desplegable en móvil. */
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
 import { Icon } from "./Icon.jsx";
 import { Logo } from "./Logo.jsx";
+import { useBooking } from "../context/BookingContext.jsx";
+import { useToast } from "./Toast.jsx";
 
 const LINKS = [
   { label: "Home", to: "/" },
   { label: "Rooms", to: "/rooms" },
-  { label: "Services", to: "/rooms" },
-  { label: "About", to: "/" },
-  { label: "Contact", to: "/" },
+  { label: "Services", to: "/services" },
+  { label: "About", to: "/about" },
+  { label: "Contact", to: "/contact" },
 ];
 
+const primerNombre = (nombre) => String(nombre || "").trim().split(" ")[0] || "";
+const iniciales = (nombre) =>
+  String(nombre || "")
+    .trim()
+    .split(/\s+/)
+    .slice(0, 2)
+    .map((p) => p[0]?.toUpperCase() || "")
+    .join("");
+
 export function TopNav({ dark = false, active = "Home" }) {
-  const navigate = useNavigate();
   const [open, setOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+  const [authBusy, setAuthBusy] = useState(false);
+  const { user, login, logout } = useBooking();
+  const toast = useToast();
+
+  async function handleSignIn() {
+    setAuthBusy(true);
+    try {
+      const u = await login();
+      toast.success("Sesión iniciada como " + (primerNombre(u.nombre) || u.nombre));
+    } catch {
+      toast.error("No se pudo iniciar sesión");
+    } finally {
+      setAuthBusy(false);
+    }
+  }
+
+  function handleSignOut() {
+    logout();
+    toast.success("Sesión cerrada");
+  }
+
+  // La nav es sticky: al hacer scroll dejamos un fondo sólido para que no
+  // se vea transparente sobre el contenido (sobre todo la variante oscura).
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 24);
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
+  // Solo la variante oscura arranca transparente (sobre el hero). Al hacer
+  // scroll pasa a navy sólido; la clara siempre tiene fondo papel opaco.
+  const transparent = dark && !scrolled;
+
+  const headerCls = [
+    "nav border-b transition-[background-color,border-color,box-shadow] duration-200 ease-out",
+    dark ? "nav--dark" : "",
+    transparent
+      ? "bg-transparent border-transparent"
+      : "backdrop-blur-md backdrop-saturate-[1.8] " +
+        (dark
+          ? "bg-navy-900 border-[color:var(--line-on-dark)]"
+          : "bg-paper border-[color:var(--line)]"),
+    scrolled ? "shadow-[0_1px_24px_rgba(17,24,39,0.08)]" : "shadow-none",
+  ].join(" ");
 
   return (
-    <header
-      className={"nav" + (dark ? " nav--dark" : "")}
-      style={{
-        background: dark ? "transparent" : "rgba(247,244,238,.86)",
-        backdropFilter: dark ? "none" : "saturate(180%) blur(12px)",
-        borderBottom: dark ? "1px solid var(--line-on-dark)" : "1px solid var(--line)",
-      }}
-    >
+    <header className={headerCls}>
       <div className="wrap">
         <div className="nav__inner">
-          <a href="/" onClick={(e) => { e.preventDefault(); navigate("/"); }} aria-label="Aurelia home">
+          <Link to="/" aria-label="Aurelia — inicio">
             <Logo dark={dark} />
-          </a>
+          </Link>
 
-          <nav className="nav__links">
+          <nav className="nav__links" aria-label="Principal">
             {LINKS.map((l, i) => (
-              <a
+              <Link
                 key={l.label + i}
-                href={l.to}
+                to={l.to}
                 className={"nav__link" + (l.label === active ? " nav__link--active" : "")}
-                onClick={(e) => { e.preventDefault(); navigate(l.to); }}
+                aria-current={l.label === active ? "page" : undefined}
               >
                 {l.label}
-              </a>
+              </Link>
             ))}
           </nav>
 
           <div className="flex items-center gap-3.5">
-            <a href="/" className="nav__link nav__cta-signin max-[820px]:hidden" style={{ fontWeight: 500 }} onClick={(e) => e.preventDefault()}>
-              Sign In
-            </a>
-            <button
-              className={"btn " + (dark ? "btn--gold" : "btn--navy") + " max-[820px]:hidden"}
-              style={{ padding: "11px 22px" }}
-              onClick={() => navigate("/rooms")}
-            >
+            {user ? (
+              <button
+                type="button"
+                onClick={handleSignOut}
+                className="nav__link nav__cta-signin max-[820px]:hidden"
+                style={{ fontWeight: 500, display: "inline-flex", alignItems: "center", gap: 8 }}
+                title="Cerrar sesión"
+                aria-label={"Cerrar sesión de " + user.nombre}
+              >
+                <span aria-hidden="true" style={{ width: 26, height: 26, borderRadius: 999, background: "var(--color-gold)", color: "#fff", display: "grid", placeItems: "center", fontSize: 11, fontWeight: 700 }}>
+                  {iniciales(user.nombre)}
+                </span>
+                {primerNombre(user.nombre)}
+              </button>
+            ) : (
+              <button
+                type="button"
+                onClick={handleSignIn}
+                disabled={authBusy}
+                className="nav__link nav__cta-signin max-[820px]:hidden"
+                style={{ fontWeight: 500 }}
+              >
+                {authBusy ? "Signing in…" : "Sign In"}
+              </button>
+            )}
+            <Link to="/rooms" className={"btn " + (dark ? "btn--gold" : "btn--navy") + " max-[820px]:hidden"} style={{ padding: "11px 22px" }}>
               Book a Stay
-            </button>
+            </Link>
             <button
+              type="button"
               className="nav__toggle min-[821px]:hidden"
-              aria-label="Abrir menú"
+              aria-label={open ? "Cerrar menú" : "Abrir menú"}
+              aria-expanded={open}
+              aria-controls="menu-movil"
               onClick={() => setOpen((v) => !v)}
               style={{ color: dark ? "#fff" : "var(--color-ink)", display: "inline-flex" }}
             >
@@ -68,24 +138,34 @@ export function TopNav({ dark = false, active = "Home" }) {
       </div>
 
       {open ? (
-        <div className="min-[821px]:hidden" style={{ background: "var(--color-paper)", borderBottom: "1px solid var(--line)" }}>
+        <nav id="menu-movil" aria-label="Móvil" className="min-[821px]:hidden" style={{ background: "var(--color-paper)", borderBottom: "1px solid var(--line)" }}>
           <div className="wrap" style={{ padding: "12px 0 18px", display: "flex", flexDirection: "column", gap: 4 }}>
             {LINKS.map((l, i) => (
-              <a
+              <Link
                 key={l.label + i}
-                href={l.to}
+                to={l.to}
                 className="nav__link"
                 style={{ color: "var(--color-ink)", padding: "10px 0" }}
-                onClick={(e) => { e.preventDefault(); setOpen(false); navigate(l.to); }}
+                aria-current={l.label === active ? "page" : undefined}
+                onClick={() => setOpen(false)}
               >
                 {l.label}
-              </a>
+              </Link>
             ))}
-            <button className="btn btn--navy" style={{ marginTop: 8 }} onClick={() => { setOpen(false); navigate("/rooms"); }}>
+            {user ? (
+              <button type="button" className="nav__link" style={{ color: "var(--color-ink)", padding: "10px 0", textAlign: "left" }} onClick={() => { handleSignOut(); setOpen(false); }}>
+                Sign out ({primerNombre(user.nombre)})
+              </button>
+            ) : (
+              <button type="button" className="nav__link" style={{ color: "var(--color-ink)", padding: "10px 0", textAlign: "left" }} disabled={authBusy} onClick={() => { handleSignIn(); setOpen(false); }}>
+                {authBusy ? "Signing in…" : "Sign In"}
+              </button>
+            )}
+            <Link to="/rooms" className="btn btn--navy" style={{ marginTop: 8 }} onClick={() => setOpen(false)}>
               Book a Stay
-            </button>
+            </Link>
           </div>
-        </div>
+        </nav>
       ) : null}
     </header>
   );

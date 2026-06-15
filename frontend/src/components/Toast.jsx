@@ -37,9 +37,9 @@ export function ToastProvider({ children }) {
   return (
     <ToastContext.Provider value={api}>
       {children}
-      <div className="toast-stack" role="region" aria-live="assertive">
+      <div className="toast-stack" aria-live="assertive" aria-atomic="true">
         {toasts.map((t) => (
-          <div key={t.id} className={"toast toast--" + t.tipo}>
+          <div key={t.id} className={"toast toast--" + t.tipo} role={t.tipo === "success" ? "status" : "alert"}>
             <span className="toast__icon">
               <Icon name={t.tipo === "success" ? "check" : "alert"} size={18} />
             </span>

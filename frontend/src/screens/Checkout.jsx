@@ -119,6 +119,7 @@ export default function Checkout() {
         {/* FORMULARIO */}
         <main>
           <button
+            type="button"
             onClick={() => (step === 0 ? navigate(-1) : setStep(0))}
             className="muted"
             style={{ border: 0, background: "none", display: "inline-flex", alignItems: "center", gap: 6, fontSize: 13.5, marginBottom: 18, fontWeight: 500 }}
@@ -126,17 +127,19 @@ export default function Checkout() {
             <Icon name="chevLeft" size={15} /> {step === 0 ? "Back to room" : "Back to details"}
           </button>
 
-          {step === 0 ? <DetailsForm guest={guest} set={set} errors={errors} /> : <PaymentForm guest={guest} set={set} errors={errors} />}
+          <form onSubmit={(e) => { e.preventDefault(); next(); }} noValidate>
+            {step === 0 ? <DetailsForm guest={guest} set={set} errors={errors} /> : <PaymentForm guest={guest} set={set} errors={errors} />}
 
-          <button className="btn btn--gold btn--lg" style={{ marginTop: 24 }} onClick={next} disabled={enviando}>
-            {step === 0 ? (
-              <>Continue to Payment <Icon name="arrowRight" size={17} /></>
-            ) : enviando ? (
-              "Procesando…"
-            ) : (
-              <>Pay {money(booking.totals.total)} <Icon name="arrowRight" size={17} /></>
-            )}
-          </button>
+            <button type="submit" className="btn btn--gold btn--lg" style={{ marginTop: 24 }} disabled={enviando}>
+              {step === 0 ? (
+                <>Continue to Payment <Icon name="arrowRight" size={17} /></>
+              ) : enviando ? (
+                "Procesando…"
+              ) : (
+                <>Pay {money(booking.totals.total)} <Icon name="arrowRight" size={17} /></>
+              )}
+            </button>
+          </form>
 
           <TrustBadges />
         </main>

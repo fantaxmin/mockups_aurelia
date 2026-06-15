@@ -33,4 +33,10 @@ describe("Suite CU-01 — Buscar Disponibilidad", () => {
       "Debe haber al menos un huésped"
     );
   });
+
+  test("T01-05 — Destino no atendido → lanza 'No atendemos ese destino'", () => {
+    expect(() => buscarDisponibilidad({ ...valida, destino: "asdasd" })).toThrow(
+      "No atendemos ese destino"
+    );
+  });
 });

@@ -1,6 +1,6 @@
 /* Pantalla 3 — Detalle de habitación. */
 import { useEffect } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, Link } from "react-router-dom";
 import { TopNav } from "../components/TopNav.jsx";
 import { Footer } from "../components/Footer.jsx";
 import { Icon } from "../components/Icon.jsx";
@@ -37,60 +37,62 @@ export default function Detail() {
       <TopNav active="Rooms" />
 
       {/* breadcrumb */}
-      <div className="wrap" style={{ padding: "22px 40px 0", display: "flex", alignItems: "center", gap: 8, fontSize: 13.5, flexWrap: "wrap" }}>
-        <a href="/" onClick={(e) => { e.preventDefault(); navigate("/"); }} className="muted">Home</a>
-        <Icon name="chevRight" size={13} />
-        <a href="/rooms" onClick={(e) => { e.preventDefault(); navigate("/rooms"); }} className="muted">Rooms</a>
-        <Icon name="chevRight" size={13} />
-        <span style={{ fontWeight: 600 }}>{habitacion.name}</span>
-      </div>
+      <nav aria-label="Migas de pan" className="wrap" style={{ padding: "22px 40px 0" }}>
+        <ol style={{ listStyle: "none", margin: 0, padding: 0, display: "flex", alignItems: "center", gap: 8, fontSize: 13.5, flexWrap: "wrap" }}>
+          <li><Link to="/" className="muted">Home</Link></li>
+          <li aria-hidden="true"><Icon name="chevRight" size={13} /></li>
+          <li><Link to="/rooms" className="muted">Rooms</Link></li>
+          <li aria-hidden="true"><Icon name="chevRight" size={13} /></li>
+          <li aria-current="page" style={{ fontWeight: 600 }}>{habitacion.name}</li>
+        </ol>
+      </nav>
 
       {/* GALERÍA */}
-      <section className="wrap" style={{ padding: "20px 40px 0" }}>
+      <section className="wrap" aria-label="Galería de la habitación" style={{ padding: "20px 40px 0" }}>
         <Gallery room={habitacion} />
       </section>
 
       {/* CONTENIDO */}
-      <section className="wrap detail-grid grid gap-14 items-start grid-cols-1 lg:grid-cols-[1fr_392px]" style={{ padding: "40px 40px 96px" }}>
+      <div className="wrap detail-grid grid gap-14 items-start grid-cols-1 lg:grid-cols-[1fr_392px]" style={{ padding: "40px 40px 96px" }}>
         {/* IZQUIERDA */}
-        <div>
-          <div><span className="badge badge--soft">{habitacion.type}</span></div>
+        <main>
+          <p style={{ margin: 0 }}><span className="badge badge--soft">{habitacion.type}</span></p>
           <h1 className="display display-xl" style={{ fontSize: 40, margin: "14px 0 0" }}>{habitacion.name}</h1>
           <div style={{ display: "flex", alignItems: "center", gap: 18, marginTop: 16, flexWrap: "wrap" }}>
             <span style={{ display: "inline-flex", alignItems: "center", gap: 8 }}>
               <Stars value={habitacion.rating} /><span style={{ fontWeight: 700 }} className="tnum">{habitacion.rating}</span>
               <span className="muted">· {habitacion.reviews} reviews</span>
             </span>
-            <span className="divider-v" style={{ height: 16 }} />
+            <span className="divider-v" style={{ height: 16 }} aria-hidden="true" />
             <span className="muted" style={{ display: "inline-flex", alignItems: "center", gap: 7 }}><Icon name="pin" size={15} />{UBICACION}</span>
           </div>
 
-          <div className="flex flex-wrap" style={{ gap: 28, marginTop: 26, paddingBottom: 28, borderBottom: "1px solid var(--line)" }}>
+          <ul className="flex flex-wrap" style={{ listStyle: "none", gap: 28, margin: 0, marginTop: 26, padding: 0, paddingBottom: 28, borderBottom: "1px solid var(--line)" }}>
             {[["bed", habitacion.beds], ["users", "Sleeps " + habitacion.sleeps], ["expand", habitacion.sqm + " m²"]].map(([ic, t]) => (
-              <div key={t} style={{ display: "flex", alignItems: "center", gap: 10 }}>
+              <li key={t} style={{ display: "flex", alignItems: "center", gap: 10 }}>
                 <span style={{ width: 42, height: 42, borderRadius: 999, border: "1px solid var(--line)", display: "grid", placeItems: "center", color: "var(--color-goldink)" }}>
                   <Icon name={ic} size={19} />
                 </span>
                 <span style={{ fontSize: 14.5, fontWeight: 500 }}>{t}</span>
-              </div>
+              </li>
             ))}
-          </div>
+          </ul>
 
           <h2 className="display" style={{ fontSize: 22, margin: "32px 0 12px" }}>About this room</h2>
           <p style={{ fontSize: 16, lineHeight: 1.75, color: "var(--color-ink)", margin: 0, maxWidth: 620 }}>{habitacion.desc}</p>
 
           <h2 className="display" style={{ fontSize: 22, margin: "38px 0 18px" }}>Amenities</h2>
-          <div className="amenities-grid grid grid-cols-1 sm:grid-cols-2" style={{ gap: "16px 24px", maxWidth: 560 }}>
+          <ul className="amenities-grid grid grid-cols-1 sm:grid-cols-2" style={{ listStyle: "none", margin: 0, padding: 0, gap: "16px 24px", maxWidth: 560 }}>
             {habitacion.amenities.map((a) => (
-              <div key={a} style={{ display: "flex", alignItems: "center", gap: 12 }}>
+              <li key={a} style={{ display: "flex", alignItems: "center", gap: 12 }}>
                 <span style={{ color: "var(--color-goldink)" }}><Icon name={a} size={20} /></span>
                 <span style={{ fontSize: 14.5 }}>{AMENIDADES[a]}</span>
-              </div>
+              </li>
             ))}
-          </div>
+          </ul>
 
           {/* RESEÑAS */}
-          <div style={{ marginTop: 46, paddingTop: 38, borderTop: "1px solid var(--line)" }}>
+          <section aria-label="Reseñas de huéspedes" style={{ marginTop: 46, paddingTop: 38, borderTop: "1px solid var(--line)" }}>
             <div style={{ display: "flex", alignItems: "center", gap: 16, marginBottom: 26, flexWrap: "wrap" }}>
               <h2 className="display" style={{ fontSize: 22, margin: 0 }}>Guest reviews</h2>
               <span className="badge badge--gold"><Icon name="star" size={13} />{habitacion.rating} · {habitacion.reviews} reviews</span>
@@ -98,14 +100,14 @@ export default function Detail() {
             <div style={{ display: "flex", flexDirection: "column", gap: 18 }}>
               {RESENAS.map((rv) => <ReviewCard key={rv.name} review={rv} />)}
             </div>
-          </div>
-        </div>
+          </section>
+        </main>
 
         {/* DERECHA — tarjeta de reserva sticky */}
-        <aside className="detail-aside lg:sticky" style={{ top: 96 }}>
+        <aside className="detail-aside lg:sticky" aria-label="Reservar habitación" style={{ top: 96 }}>
           <BookingCard room={habitacion} search={search} setSearch={setSearch} onConfirm={onConfirm} />
         </aside>
-      </section>
+      </div>
       <Footer />
     </div>
   );

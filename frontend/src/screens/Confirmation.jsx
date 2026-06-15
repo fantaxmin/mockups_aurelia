@@ -43,7 +43,7 @@ export default function Confirmation() {
         <div style={{ position: "absolute", inset: 0, background: "repeating-linear-gradient(135deg, rgba(255,255,255,.03) 0 2px, transparent 2px 14px)" }} />
         <div className="wrap" style={{ padding: "72px 40px 96px", textAlign: "center", position: "relative" }}>
           <div className="check-pop" style={{ width: 84, height: 84, borderRadius: 999, background: "color-mix(in oklab, #28a06a 92%, white)", display: "grid", placeItems: "center", margin: "0 auto 26px", boxShadow: "0 0 0 10px rgba(40,160,106,.18)" }}>
-            <Icon name="checkSmall" size={40} sw={2.4} style={{ color: "#fff" }} />
+            <Icon name="checkSmall" size={40} sw={2.4} style={{ color: "#fff" }} label="Reserva confirmada" />
           </div>
           <div className="eyebrow on-dark" style={{ marginBottom: 14 }}>Reservation complete</div>
           <h1 className="display" style={{ fontSize: 48, color: "#fff", margin: "0 0 14px" }}>Booking Confirmed!</h1>
@@ -59,9 +59,9 @@ export default function Confirmation() {
 
       {/* tarjeta resumen */}
       <div className="wrap" style={{ padding: "0 40px", marginTop: -56, position: "relative", zIndex: 2 }}>
-        <div className="card card--raise" style={{ maxWidth: 720, margin: "0 auto", overflow: "hidden", background: "#fff" }}>
+        <article className="card card--raise" aria-label="Resumen de la reserva" style={{ maxWidth: 720, margin: "0 auto", overflow: "hidden", background: "#fff" }}>
           <div className="confirm-card-grid grid grid-cols-1 sm:grid-cols-[200px_1fr]">
-            <Img label={room.name} style={{ minHeight: 200 }} />
+            <Img label={room.name} decorative style={{ minHeight: 200 }} />
             <div style={{ padding: "26px 28px" }}>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 12 }}>
                 <div>
@@ -69,7 +69,7 @@ export default function Confirmation() {
                   <h2 className="display" style={{ fontSize: 26, margin: "0 0 6px" }}>{room.name}</h2>
                   <span className="badge badge--soft">{room.type}</span>
                 </div>
-                <span className="badge badge--avail"><span className="dot" />Confirmed</span>
+                <span className="badge badge--avail"><span className="dot" aria-hidden="true" />Confirmed</span>
               </div>
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-[18px]" style={{ marginTop: 24, paddingTop: 22, borderTop: "1px solid var(--line-2)" }}>
                 <StatCell label="Guest" value={datos.name || "—"} />
@@ -82,18 +82,20 @@ export default function Confirmation() {
             </div>
           </div>
           <div className="flex flex-wrap gap-3" style={{ padding: "20px 28px", borderTop: "1px solid var(--line)", background: "var(--color-paper)" }}>
-            <button className="btn btn--navy" onClick={() => window.print()}><Icon name="download" size={17} /> Download Confirmation PDF</button>
-            <button className="btn btn--ghost" onClick={() => navigate("/")}>Back to Home</button>
+            <button type="button" className="btn btn--navy" onClick={() => window.print()}><Icon name="download" size={17} /> Download Confirmation PDF</button>
+            <button type="button" className="btn btn--ghost" onClick={() => navigate("/")}>Back to Home</button>
           </div>
-        </div>
+        </article>
       </div>
 
       {/* PRÓXIMOS PASOS */}
       <section className="wrap section" style={{ paddingTop: 80 }}>
         <SectionHead align="center" eyebrow="Before you arrive" title="Helpful next steps" sub="A few things to make your stay seamless from the moment you land." />
-        <div className="nextsteps-grid grid grid-cols-1 md:grid-cols-3 gap-[22px]" style={{ marginTop: 44 }}>
-          {NEXT_STEPS.map(([ic, t, body, cta]) => <NextStepCard key={t} icon={ic} title={t} body={body} cta={cta} />)}
-        </div>
+        <ul className="nextsteps-grid grid grid-cols-1 md:grid-cols-3 gap-[22px]" style={{ listStyle: "none", margin: 0, padding: 0, marginTop: 44 }}>
+          {NEXT_STEPS.map(([ic, t, body, cta]) => (
+            <li key={t}><NextStepCard icon={ic} title={t} body={body} cta={cta} /></li>
+          ))}
+        </ul>
       </section>
 
       <Footer />
