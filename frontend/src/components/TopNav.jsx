@@ -1,5 +1,5 @@
 /* Navegación superior, con menú desplegable en móvil. */
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Icon } from "./Icon.jsx";
 import { Logo } from "./Logo.jsx";
@@ -7,23 +7,42 @@ import { Logo } from "./Logo.jsx";
 const LINKS = [
   { label: "Home", to: "/" },
   { label: "Rooms", to: "/rooms" },
-  { label: "Services", to: "/rooms" },
-  { label: "About", to: "/" },
-  { label: "Contact", to: "/" },
+  { label: "Services", to: "/services" },
+  { label: "About", to: "/about" },
+  { label: "Contact", to: "/contact" },
 ];
 
 export function TopNav({ dark = false, active = "Home" }) {
   const [open, setOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+
+  // La nav es sticky: al hacer scroll dejamos un fondo sólido para que no
+  // se vea transparente sobre el contenido (sobre todo la variante oscura).
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 24);
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
+  // Solo la variante oscura arranca transparente (sobre el hero). Al hacer
+  // scroll pasa a navy sólido; la clara siempre tiene fondo papel opaco.
+  const transparent = dark && !scrolled;
+
+  const headerCls = [
+    "nav border-b transition-[background-color,border-color,box-shadow] duration-200 ease-out",
+    dark ? "nav--dark" : "",
+    transparent
+      ? "bg-transparent border-transparent"
+      : "backdrop-blur-md backdrop-saturate-[1.8] " +
+        (dark
+          ? "bg-navy-900 border-[color:var(--line-on-dark)]"
+          : "bg-paper border-[color:var(--line)]"),
+    scrolled ? "shadow-[0_1px_24px_rgba(17,24,39,0.08)]" : "shadow-none",
+  ].join(" ");
 
   return (
-    <header
-      className={"nav" + (dark ? " nav--dark" : "")}
-      style={{
-        background: dark ? "transparent" : "rgba(247,244,238,.86)",
-        backdropFilter: dark ? "none" : "saturate(180%) blur(12px)",
-        borderBottom: dark ? "1px solid var(--line-on-dark)" : "1px solid var(--line)",
-      }}
-    >
+    <header className={headerCls}>
       <div className="wrap">
         <div className="nav__inner">
           <Link to="/" aria-label="Aurelia — inicio">
