@@ -7,6 +7,7 @@
  *
  * @param {Array<Object>} habitaciones Catálogo de habitaciones disponibles.
  * @param {Object} [filtros]
+ * @param {string}  [filtros.destinoId]   Sede (llave foránea) a la que pertenece la habitación.
  * @param {string}  [filtros.tipo]        Tipo de habitación (Single, Double, Suite, Deluxe).
  * @param {number}  [filtros.precioMax]   Precio por noche máximo.
  * @param {number}  [filtros.ratingMin]   Calificación mínima de huéspedes.
@@ -18,9 +19,10 @@ export default function filtrarHabitaciones(habitaciones, filtros = {}) {
     throw new Error("No hay habitaciones disponibles");
   }
 
-  const { tipo, precioMax, ratingMin, amenidades } = filtros;
+  const { destinoId, tipo, precioMax, ratingMin, amenidades } = filtros;
 
   return habitaciones.filter((h) => {
+    if (destinoId && h.destinoId !== destinoId) return false;
     if (tipo && h.type !== tipo) return false;
     if (precioMax != null && h.price > precioMax) return false;
     if (ratingMin != null && h.rating < ratingMin) return false;

@@ -5,7 +5,7 @@ import { Counter } from "../ui/Counter.jsx";
 import { Icon } from "../Icon.jsx";
 import { sumarDias } from "../../lib/format.js";
 import { getDestinos } from "../../lib/api.js";
-import { DESTINOS, esDestinoValido } from "@shared/data/destinos.js";
+import { NOMBRES_DESTINO, esDestinoValido } from "@shared/data/destinos.js";
 
 function hoyISO() {
   const d = new Date();
@@ -16,7 +16,7 @@ function hoyISO() {
 export function SearchForm({ search, setSearch, onSubmit, floating }) {
   const [guestsOpen, setGuestsOpen] = useState(false);
   const [guestsUp, setGuestsUp] = useState(false);
-  const [destinos, setDestinos] = useState(DESTINOS);
+  const [destinos, setDestinos] = useState(NOMBRES_DESTINO);
   const checkInRef = useRef(null);
   const checkOutRef = useRef(null);
   const guestsCellRef = useRef(null);

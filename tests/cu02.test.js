@@ -5,11 +5,11 @@ import filtrarHabitaciones from "../shared/logic/filtrarHabitaciones.js";
 
 // Catálogo de prueba con cinco habitaciones representativas.
 const CATALOGO = [
-  { id: "single", name: "Garden View Single", type: "Single", price: 180, rating: 4.5, amenities: ["wifi", "breakfast"] },
-  { id: "double", name: "Classic Double", type: "Double", price: 240, rating: 4.6, amenities: ["wifi", "tv"] },
-  { id: "deluxe", name: "Deluxe King", type: "Deluxe", price: 320, rating: 4.8, amenities: ["wifi", "pool"] },
-  { id: "suite", name: "Junior Suite", type: "Suite", price: 480, rating: 4.9, amenities: ["wifi", "pool", "parking"] },
-  { id: "exec", name: "Executive Suite", type: "Suite", price: 620, rating: 4.9, amenities: ["wifi", "pool"] },
+  { id: "single", name: "Garden View Single", type: "Single", price: 180, rating: 4.5, amenities: ["wifi", "breakfast"], destinoId: "lisbon" },
+  { id: "double", name: "Classic Double", type: "Double", price: 240, rating: 4.6, amenities: ["wifi", "tv"], destinoId: "lisbon" },
+  { id: "deluxe", name: "Deluxe King", type: "Deluxe", price: 320, rating: 4.8, amenities: ["wifi", "pool"], destinoId: "lisbon" },
+  { id: "suite", name: "Junior Suite", type: "Suite", price: 480, rating: 4.9, amenities: ["wifi", "pool", "parking"], destinoId: "madrid" },
+  { id: "exec", name: "Executive Suite", type: "Suite", price: 620, rating: 4.9, amenities: ["wifi", "pool"], destinoId: "paris" },
 ];
 
 describe("Suite CU-02 — Filtrar Habitaciones", () => {
@@ -38,5 +38,11 @@ describe("Suite CU-02 — Filtrar Habitaciones", () => {
     expect(() => filtrarHabitaciones([], { tipo: "Suite" })).toThrow(
       "No hay habitaciones disponibles"
     );
+  });
+
+  test("T02-06 — Filtrar por destino (FK) → solo habitaciones de esa sede", () => {
+    const r = filtrarHabitaciones(CATALOGO, { destinoId: "lisbon" });
+    expect(r).toHaveLength(3);
+    expect(r.every((h) => h.destinoId === "lisbon")).toBe(true);
   });
 });

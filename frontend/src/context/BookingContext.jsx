@@ -28,7 +28,7 @@ export function BookingProvider({ children }) {
   const HOY = hoyISO();
 
   const [search, setSearch] = useState({
-    destination: "Hotel Aurelia, Lisbon",
+    destination: "Lisbon, Portugal",
     checkIn: HOY,
     checkOut: sumarDias(HOY, 3),
     adults: 2,

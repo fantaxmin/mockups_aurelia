@@ -22,6 +22,7 @@ export const TIPOS_HABITACION = ["Single", "Double", "Suite", "Deluxe"];
 export const HABITACIONES = [
   {
     id: "garden-single",
+    destinoId: "lisbon",
     name: "Garden View Single",
     type: "Single",
     price: 180,
@@ -38,6 +39,7 @@ export const HABITACIONES = [
   },
   {
     id: "classic-double",
+    destinoId: "lisbon",
     name: "Classic Double",
     type: "Double",
     price: 240,
@@ -54,6 +56,7 @@ export const HABITACIONES = [
   },
   {
     id: "twin-standard",
+    destinoId: "porto",
     name: "Twin Standard",
     type: "Double",
     price: 210,
@@ -70,6 +73,7 @@ export const HABITACIONES = [
   },
   {
     id: "deluxe-king",
+    destinoId: "lisbon",
     name: "Deluxe King",
     type: "Deluxe",
     price: 320,
@@ -86,6 +90,7 @@ export const HABITACIONES = [
   },
   {
     id: "panorama-deluxe",
+    destinoId: "barcelona",
     name: "Panorama Deluxe",
     type: "Deluxe",
     price: 360,
@@ -102,6 +107,7 @@ export const HABITACIONES = [
   },
   {
     id: "junior-suite",
+    destinoId: "madrid",
     name: "Junior Suite",
     type: "Suite",
     price: 480,
@@ -118,6 +124,7 @@ export const HABITACIONES = [
   },
   {
     id: "executive-suite",
+    destinoId: "paris",
     name: "Executive Suite",
     type: "Suite",
     price: 620,

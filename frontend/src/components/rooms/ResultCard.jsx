@@ -5,9 +5,11 @@ import { Icon } from "../Icon.jsx";
 import { Stars } from "../Stars.jsx";
 import { money, noches } from "../../lib/format.js";
 import { AMENIDADES } from "@shared/data/habitaciones.js";
+import { destinoPorId, nombreDestino } from "@shared/data/destinos.js";
 
 export function ResultCard({ room, search, onOpen, onReserve }) {
   const n = noches(search.checkIn, search.checkOut);
+  const ubicacion = nombreDestino(destinoPorId(room.destinoId));
   return (
     <article className="card result-card grid grid-cols-1 md:grid-cols-[300px_1fr] overflow-hidden transition-shadow hover:shadow-[var(--shadow-md)]">
       <div style={{ position: "relative" }}>
@@ -27,9 +29,14 @@ export function ResultCard({ room, search, onOpen, onReserve }) {
                 <span className="muted">({room.reviews} reviews)</span>
               </span>
             </div>
-            <h3 className="display" style={{ fontSize: 22, margin: "0 0 6px" }}>
+            <h3 className="display" style={{ fontSize: 22, margin: "0 0 4px" }}>
               <Link to={"/rooms/" + room.id} style={{ color: "inherit" }}>{room.name}</Link>
             </h3>
+            {ubicacion ? (
+              <p style={{ display: "inline-flex", alignItems: "center", gap: 6, margin: "0 0 8px", fontSize: 13, color: "var(--color-goldink)", fontWeight: 600 }}>
+                <Icon name="pin" size={14} />{ubicacion}
+              </p>
+            ) : null}
             <ul className="muted" style={{ listStyle: "none", margin: 0, padding: 0, fontSize: 13.5, display: "flex", gap: 16, flexWrap: "wrap" }}>
               <li style={{ display: "inline-flex", alignItems: "center", gap: 6 }}><Icon name="bed" size={15} />{room.beds}</li>
               <li style={{ display: "inline-flex", alignItems: "center", gap: 6 }}><Icon name="users" size={15} />Sleeps {room.sleeps}</li>

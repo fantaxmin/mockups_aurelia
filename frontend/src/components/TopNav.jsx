@@ -1,10 +1,11 @@
 /* Navegación superior, con menú desplegable en móvil. */
 import { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Icon } from "./Icon.jsx";
 import { Logo } from "./Logo.jsx";
 import { useBooking } from "../context/BookingContext.jsx";
 import { useToast } from "./Toast.jsx";
+import buscarDisponibilidad from "@shared/logic/buscarDisponibilidad.js";
 
 const LINKS = [
   { label: "Home", to: "/" },
@@ -26,25 +27,29 @@ const iniciales = (nombre) =>
 export function TopNav({ dark = false, active = "Home" }) {
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
-  const [authBusy, setAuthBusy] = useState(false);
-  const { user, login, logout } = useBooking();
+  const { user, logout, search } = useBooking();
   const toast = useToast();
-
-  async function handleSignIn() {
-    setAuthBusy(true);
-    try {
-      const u = await login();
-      toast.success("Sesión iniciada como " + (primerNombre(u.nombre) || u.nombre));
-    } catch {
-      toast.error("No se pudo iniciar sesión");
-    } finally {
-      setAuthBusy(false);
-    }
-  }
+  const navigate = useNavigate();
 
   function handleSignOut() {
     logout();
     toast.success("Sesión cerrada");
+  }
+
+  // "Book a Stay" dispara la búsqueda con los criterios actuales (igual que
+  // "Search Availability"): valida y lleva a resultados, o muestra el error.
+  function handleBookStay() {
+    try {
+      buscarDisponibilidad({
+        destino: search.destination,
+        checkIn: search.checkIn,
+        checkOut: search.checkOut,
+        huespedes: search.adults + search.children,
+      });
+      navigate("/rooms");
+    } catch (err) {
+      toast.error(err.message);
+    }
   }
 
   // La nav es sticky: al hacer scroll dejamos un fondo sólido para que no
@@ -109,27 +114,25 @@ export function TopNav({ dark = false, active = "Home" }) {
                 {primerNombre(user.nombre)}
               </button>
             ) : (
-              <button
-                type="button"
-                onClick={handleSignIn}
-                disabled={authBusy}
+              <Link
+                to="/login"
                 className="nav__link nav__cta-signin max-[820px]:hidden"
                 style={{ fontWeight: 500 }}
               >
-                {authBusy ? "Signing in…" : "Sign In"}
-              </button>
+                Sign In
+              </Link>
             )}
-            <Link to="/rooms" className={"btn " + (dark ? "btn--gold" : "btn--navy") + " max-[820px]:hidden"} style={{ padding: "11px 22px" }}>
+            <button type="button" onClick={handleBookStay} className={"btn " + (dark ? "btn--gold" : "btn--navy") + " max-[820px]:hidden"} style={{ padding: "11px 22px" }}>
               Book a Stay
-            </Link>
+            </button>
             <button
               type="button"
-              className="nav__toggle min-[821px]:hidden"
+              className="nav__toggle inline-flex min-[821px]:hidden"
               aria-label={open ? "Cerrar menú" : "Abrir menú"}
               aria-expanded={open}
               aria-controls="menu-movil"
               onClick={() => setOpen((v) => !v)}
-              style={{ color: dark ? "#fff" : "var(--color-ink)", display: "inline-flex" }}
+              style={{ color: dark ? "#fff" : "var(--color-ink)" }}
             >
               <Icon name={open ? "close" : "menu"} size={24} />
             </button>
@@ -157,13 +160,13 @@ export function TopNav({ dark = false, active = "Home" }) {
                 Sign out ({primerNombre(user.nombre)})
               </button>
             ) : (
-              <button type="button" className="nav__link" style={{ color: "var(--color-ink)", padding: "10px 0", textAlign: "left" }} disabled={authBusy} onClick={() => { handleSignIn(); setOpen(false); }}>
-                {authBusy ? "Signing in…" : "Sign In"}
-              </button>
+              <Link to="/login" className="nav__link" style={{ color: "var(--color-ink)", padding: "10px 0" }} onClick={() => setOpen(false)}>
+                Sign In
+              </Link>
             )}
-            <Link to="/rooms" className="btn btn--navy" style={{ marginTop: 8 }} onClick={() => setOpen(false)}>
+            <button type="button" className="btn btn--navy" style={{ marginTop: 8 }} onClick={() => { setOpen(false); handleBookStay(); }}>
               Book a Stay
-            </Link>
+            </button>
           </div>
         </nav>
       ) : null}
