@@ -20,6 +20,15 @@ export function getUsuarioPrueba() {
   return pedir("/api/usuario-prueba");
 }
 
+/** Catálogo de destinos para el autocompletado del buscador (tabla SQLite). */
+export function getDestinos(q = "", limit) {
+  const params = new URLSearchParams();
+  if (q) params.set("q", q);
+  if (limit) params.set("limit", String(limit));
+  const qs = params.toString();
+  return pedir("/api/destinos" + (qs ? "?" + qs : ""));
+}
+
 /** Crea una reserva en la base de datos (se elimina sola al expirar el TTL). */
 export function crearReserva(payload) {
   return pedir("/api/reservas", { method: "POST", body: JSON.stringify(payload) });

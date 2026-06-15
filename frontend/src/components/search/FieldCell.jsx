@@ -1,9 +1,18 @@
 /* Celda de un campo del formulario de búsqueda (ícono + etiqueta + control). */
 import { Icon } from "../Icon.jsx";
 
-export function FieldCell({ icon, label, htmlFor, children, divider }) {
+/**
+ * Si se pasa `onActivate`, toda la celda se vuelve clickeable (no solo el
+ * ícono/control interno), que es lo esperable en un buscador.
+ */
+export function FieldCell({ icon, label, htmlFor, children, divider, onActivate }) {
+  const clickable = typeof onActivate === "function";
   return (
-    <div className={"sf-cell flex items-center gap-3 " + (divider ? "md:border-l" : "")} style={{ padding: "12px 18px", borderColor: "var(--line-2)" }}>
+    <div
+      className={"sf-cell flex items-center gap-3 " + (divider ? "md:border-l " : "") + (clickable ? "cursor-pointer" : "")}
+      style={{ padding: "12px 18px", borderColor: "var(--line-2)" }}
+      onClick={clickable ? onActivate : undefined}
+    >
       <span style={{ color: "var(--color-goldink)", flex: "none" }} aria-hidden="true">
         <Icon name={icon} size={19} />
       </span>

@@ -13,6 +13,7 @@
  * @returns {{ disponible: boolean, destino: string, checkIn: string, checkOut: string, huespedes: number }}
  */
 import { noches } from "./fechas.js";
+import { esDestinoValido } from "../data/destinos.js";
 
 export default function buscarDisponibilidad(busqueda = {}) {
   const { destino, checkIn, checkOut, huespedes } = busqueda;
@@ -20,6 +21,11 @@ export default function buscarDisponibilidad(busqueda = {}) {
   // 1. Todos los campos de texto/fecha son obligatorios.
   if (!destino || !checkIn || !checkOut) {
     throw new Error("Todos los campos son obligatorios");
+  }
+
+  // 1b. El destino debe ser uno atendido (no se acepta texto inventado).
+  if (!esDestinoValido(destino)) {
+    throw new Error("No atendemos ese destino. Prueba con Lisbon, Portugal");
   }
 
   // 2. La fecha de salida debe ser posterior a la de entrada.

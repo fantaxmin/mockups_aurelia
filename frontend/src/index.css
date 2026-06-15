@@ -352,6 +352,15 @@
     color: var(--color-muted2);
     font-weight: 400;
   }
+  /* La celda entera abre el datepicker → ocultamos el indicador nativo
+     (ya mostramos un ícono de calendario propio) y dejamos pasar el clic. */
+  .sf-date {
+    cursor: pointer;
+  }
+  .sf-date::-webkit-calendar-picker-indicator {
+    display: none;
+    -webkit-appearance: none;
+  }
 
   /* counter */
   .counter {

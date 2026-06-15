@@ -3,6 +3,8 @@ import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Icon } from "./Icon.jsx";
 import { Logo } from "./Logo.jsx";
+import { useBooking } from "../context/BookingContext.jsx";
+import { useToast } from "./Toast.jsx";
 
 const LINKS = [
   { label: "Home", to: "/" },
@@ -12,9 +14,38 @@ const LINKS = [
   { label: "Contact", to: "/contact" },
 ];
 
+const primerNombre = (nombre) => String(nombre || "").trim().split(" ")[0] || "";
+const iniciales = (nombre) =>
+  String(nombre || "")
+    .trim()
+    .split(/\s+/)
+    .slice(0, 2)
+    .map((p) => p[0]?.toUpperCase() || "")
+    .join("");
+
 export function TopNav({ dark = false, active = "Home" }) {
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const [authBusy, setAuthBusy] = useState(false);
+  const { user, login, logout } = useBooking();
+  const toast = useToast();
+
+  async function handleSignIn() {
+    setAuthBusy(true);
+    try {
+      const u = await login();
+      toast.success("Sesión iniciada como " + (primerNombre(u.nombre) || u.nombre));
+    } catch {
+      toast.error("No se pudo iniciar sesión");
+    } finally {
+      setAuthBusy(false);
+    }
+  }
+
+  function handleSignOut() {
+    logout();
+    toast.success("Sesión cerrada");
+  }
 
   // La nav es sticky: al hacer scroll dejamos un fondo sólido para que no
   // se vea transparente sobre el contenido (sobre todo la variante oscura).
@@ -63,9 +94,31 @@ export function TopNav({ dark = false, active = "Home" }) {
           </nav>
 
           <div className="flex items-center gap-3.5">
-            <button type="button" className="nav__link nav__cta-signin max-[820px]:hidden" style={{ fontWeight: 500 }}>
-              Sign In
-            </button>
+            {user ? (
+              <button
+                type="button"
+                onClick={handleSignOut}
+                className="nav__link nav__cta-signin max-[820px]:hidden"
+                style={{ fontWeight: 500, display: "inline-flex", alignItems: "center", gap: 8 }}
+                title="Cerrar sesión"
+                aria-label={"Cerrar sesión de " + user.nombre}
+              >
+                <span aria-hidden="true" style={{ width: 26, height: 26, borderRadius: 999, background: "var(--color-gold)", color: "#fff", display: "grid", placeItems: "center", fontSize: 11, fontWeight: 700 }}>
+                  {iniciales(user.nombre)}
+                </span>
+                {primerNombre(user.nombre)}
+              </button>
+            ) : (
+              <button
+                type="button"
+                onClick={handleSignIn}
+                disabled={authBusy}
+                className="nav__link nav__cta-signin max-[820px]:hidden"
+                style={{ fontWeight: 500 }}
+              >
+                {authBusy ? "Signing in…" : "Sign In"}
+              </button>
+            )}
             <Link to="/rooms" className={"btn " + (dark ? "btn--gold" : "btn--navy") + " max-[820px]:hidden"} style={{ padding: "11px 22px" }}>
               Book a Stay
             </Link>
@@ -99,6 +152,15 @@ export function TopNav({ dark = false, active = "Home" }) {
                 {l.label}
               </Link>
             ))}
+            {user ? (
+              <button type="button" className="nav__link" style={{ color: "var(--color-ink)", padding: "10px 0", textAlign: "left" }} onClick={() => { handleSignOut(); setOpen(false); }}>
+                Sign out ({primerNombre(user.nombre)})
+              </button>
+            ) : (
+              <button type="button" className="nav__link" style={{ color: "var(--color-ink)", padding: "10px 0", textAlign: "left" }} disabled={authBusy} onClick={() => { handleSignIn(); setOpen(false); }}>
+                {authBusy ? "Signing in…" : "Sign In"}
+              </button>
+            )}
             <Link to="/rooms" className="btn btn--navy" style={{ marginTop: 8 }} onClick={() => setOpen(false)}>
               Book a Stay
             </Link>
