@@ -15,9 +15,24 @@ function hoyISO() {
 
 export function SearchForm({ search, setSearch, onSubmit, floating }) {
   const [guestsOpen, setGuestsOpen] = useState(false);
+  const [guestsUp, setGuestsUp] = useState(false);
   const [destinos, setDestinos] = useState(DESTINOS);
   const checkInRef = useRef(null);
   const checkOutRef = useRef(null);
+  const guestsCellRef = useRef(null);
+
+  // Abre/cierra el popover de huéspedes; al abrir decide si desplegar hacia
+  // arriba cuando no hay espacio suficiente abajo (p. ej. buscador flotante).
+  function toggleGuests() {
+    setGuestsOpen((open) => {
+      if (!open) {
+        const rect = guestsCellRef.current?.getBoundingClientRect();
+        const espacioAbajo = window.innerHeight - (rect?.bottom ?? 0);
+        setGuestsUp(espacioAbajo < 320);
+      }
+      return !open;
+    });
+  }
 
   // Consume el catálogo desde la tabla SQLite (vía API). Si el backend no
   // responde, se mantiene la lista local importada como respaldo.
@@ -104,8 +119,8 @@ export function SearchForm({ search, setSearch, onSubmit, floating }) {
         />
       </FieldCell>
 
-      <div className="relative md:border-l" style={{ borderColor: "var(--line-2)" }}>
-        <FieldCell icon="users" label="Guests" onActivate={() => setGuestsOpen((v) => !v)}>
+      <div ref={guestsCellRef} className="relative md:border-l" style={{ borderColor: "var(--line-2)" }}>
+        <FieldCell icon="users" label="Guests" onActivate={toggleGuests}>
           <button
             type="button"
             className="sf-input"
@@ -113,7 +128,7 @@ export function SearchForm({ search, setSearch, onSubmit, floating }) {
             aria-haspopup="true"
             aria-expanded={guestsOpen}
             style={{ textAlign: "left", background: "transparent", border: 0, padding: 0, color: "var(--color-ink)", cursor: "pointer" }}
-            onClick={(e) => { e.stopPropagation(); setGuestsOpen((v) => !v); }}
+            onClick={(e) => { e.stopPropagation(); toggleGuests(); }}
           >
             {guestLabel}{search.rooms > 1 ? " · " + search.rooms + " rooms" : ""}
           </button>
@@ -121,7 +136,7 @@ export function SearchForm({ search, setSearch, onSubmit, floating }) {
         {guestsOpen ? (
           <>
             <div style={{ position: "fixed", inset: 0, zIndex: 10 }} onClick={() => setGuestsOpen(false)} />
-            <div className="card card--raise" style={{ position: "absolute", top: "calc(100% + 12px)", right: 0, width: 290, padding: 18, zIndex: 11, background: "#fff" }} onClick={(e) => e.stopPropagation()}>
+            <div className="card card--raise" style={{ position: "absolute", [guestsUp ? "bottom" : "top"]: "calc(100% + 12px)", right: 0, width: 290, padding: 18, zIndex: 11, background: "#fff" }} onClick={(e) => e.stopPropagation()}>
               {[["adults", "Adults", "Ages 13+"], ["children", "Children", "Ages 0–12"], ["rooms", "Rooms", ""]].map(([k, lab, sub]) => (
                 <div key={k} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "10px 0", borderBottom: k !== "rooms" ? "1px solid var(--line-2)" : "0" }}>
                   <div>
