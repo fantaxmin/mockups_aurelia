@@ -3,20 +3,14 @@ import { useEffect, useRef, useState } from "react";
 import { FieldCell } from "./FieldCell.jsx";
 import { Counter } from "../ui/Counter.jsx";
 import { Icon } from "../Icon.jsx";
-import { sumarDias } from "../../lib/format.js";
+import { sumarDias, hoyISO } from "../../lib/format.js";
 import { getDestinos } from "../../lib/api.js";
-import { DESTINOS, esDestinoValido } from "@shared/data/destinos.js";
-
-function hoyISO() {
-  const d = new Date();
-  const p = (n) => String(n).padStart(2, "0");
-  return d.getFullYear() + "-" + p(d.getMonth() + 1) + "-" + p(d.getDate());
-}
+import { NOMBRES_DESTINO, esDestinoValido } from "@shared/data/destinos.js";
 
 export function SearchForm({ search, setSearch, onSubmit, floating }) {
   const [guestsOpen, setGuestsOpen] = useState(false);
   const [guestsUp, setGuestsUp] = useState(false);
-  const [destinos, setDestinos] = useState(DESTINOS);
+  const [destinos, setDestinos] = useState(NOMBRES_DESTINO);
   const checkInRef = useRef(null);
   const checkOutRef = useRef(null);
   const guestsCellRef = useRef(null);

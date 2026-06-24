@@ -1,72 +1,85 @@
 /**
- * Catálogo de destinos atendidos. Es la semilla con la que el backend llena la
- * tabla `destinos` de SQLite (fuente que consume el buscador vía API) y, a la
- * vez, el fallback offline + la whitelist de validación (`esDestinoValido`).
- * Mantener tabla y validación sincronizadas: la tabla se siembra de aquí.
+ * Catálogo de destinos / sedes donde Hotel Aurelia opera. Es la fuente única:
+ *  - siembra la tabla `destinos` de SQLite (id, ciudad, país),
+ *  - alimenta el autocompletado + la validación del buscador,
+ *  - y es el objetivo de la llave foránea `destinoId` de cada habitación.
+ * Solo algunas sedes tienen habitaciones cargadas; el resto son destinos
+ * válidos sin disponibilidad todavía.
  */
 export const DESTINOS = [
-  "Hotel Aurelia, Lisbon",
-  "Lisbon, Portugal",
-  "Porto, Portugal",
-  "Madrid, Spain",
-  "Barcelona, Spain",
-  "Paris, France",
-  "Nice, France",
-  "London, United Kingdom",
-  "Edinburgh, United Kingdom",
-  "Rome, Italy",
-  "Milan, Italy",
-  "Venice, Italy",
-  "Florence, Italy",
-  "Amsterdam, Netherlands",
-  "Berlin, Germany",
-  "Munich, Germany",
-  "Vienna, Austria",
-  "Prague, Czech Republic",
-  "Zurich, Switzerland",
-  "Athens, Greece",
-  "Santorini, Greece",
-  "Dublin, Ireland",
-  "Copenhagen, Denmark",
-  "Stockholm, Sweden",
-  "Istanbul, Turkey",
-  "Marrakech, Morocco",
-  "Dubai, United Arab Emirates",
-  "New York, United States",
-  "Los Angeles, United States",
-  "Miami, United States",
-  "Tokyo, Japan",
-  "Kyoto, Japan",
-  "Singapore",
-  "Bangkok, Thailand",
-  "Sydney, Australia",
-  "Rio de Janeiro, Brazil",
-  "Buenos Aires, Argentina",
-  "Mexico City, Mexico",
-  "Bogotá, Colombia",
-  "Cartagena, Colombia",
+  { id: "lisbon", ciudad: "Lisbon", pais: "Portugal" },
+  { id: "porto", ciudad: "Porto", pais: "Portugal" },
+  { id: "madrid", ciudad: "Madrid", pais: "Spain" },
+  { id: "barcelona", ciudad: "Barcelona", pais: "Spain" },
+  { id: "paris", ciudad: "Paris", pais: "France" },
+  { id: "nice", ciudad: "Nice", pais: "France" },
+  { id: "london", ciudad: "London", pais: "United Kingdom" },
+  { id: "edinburgh", ciudad: "Edinburgh", pais: "United Kingdom" },
+  { id: "rome", ciudad: "Rome", pais: "Italy" },
+  { id: "milan", ciudad: "Milan", pais: "Italy" },
+  { id: "venice", ciudad: "Venice", pais: "Italy" },
+  { id: "florence", ciudad: "Florence", pais: "Italy" },
+  { id: "amsterdam", ciudad: "Amsterdam", pais: "Netherlands" },
+  { id: "berlin", ciudad: "Berlin", pais: "Germany" },
+  { id: "munich", ciudad: "Munich", pais: "Germany" },
+  { id: "vienna", ciudad: "Vienna", pais: "Austria" },
+  { id: "prague", ciudad: "Prague", pais: "Czech Republic" },
+  { id: "zurich", ciudad: "Zurich", pais: "Switzerland" },
+  { id: "athens", ciudad: "Athens", pais: "Greece" },
+  { id: "santorini", ciudad: "Santorini", pais: "Greece" },
+  { id: "dublin", ciudad: "Dublin", pais: "Ireland" },
+  { id: "copenhagen", ciudad: "Copenhagen", pais: "Denmark" },
+  { id: "stockholm", ciudad: "Stockholm", pais: "Sweden" },
+  { id: "istanbul", ciudad: "Istanbul", pais: "Turkey" },
+  { id: "marrakech", ciudad: "Marrakech", pais: "Morocco" },
+  { id: "dubai", ciudad: "Dubai", pais: "United Arab Emirates" },
+  { id: "new-york", ciudad: "New York", pais: "United States" },
+  { id: "los-angeles", ciudad: "Los Angeles", pais: "United States" },
+  { id: "miami", ciudad: "Miami", pais: "United States" },
+  { id: "tokyo", ciudad: "Tokyo", pais: "Japan" },
+  { id: "kyoto", ciudad: "Kyoto", pais: "Japan" },
+  { id: "singapore", ciudad: "Singapore", pais: "" },
+  { id: "bangkok", ciudad: "Bangkok", pais: "Thailand" },
+  { id: "sydney", ciudad: "Sydney", pais: "Australia" },
+  { id: "rio", ciudad: "Rio de Janeiro", pais: "Brazil" },
+  { id: "buenos-aires", ciudad: "Buenos Aires", pais: "Argentina" },
+  { id: "mexico-city", ciudad: "Mexico City", pais: "Mexico" },
+  { id: "bogota", ciudad: "Bogotá", pais: "Colombia" },
+  { id: "cartagena", ciudad: "Cartagena", pais: "Colombia" },
 ];
 
-/** Normaliza para comparar sin distinguir mayúsculas, espacios ni acentos. */
+/** Etiqueta de presentación "Ciudad, País" (o solo ciudad si no hay país). */
+export const nombreDestino = (d) => (d ? (d.pais ? `${d.ciudad}, ${d.pais}` : d.ciudad) : "");
+
+/** Nombres listos para el autocompletado del buscador. */
+export const NOMBRES_DESTINO = DESTINOS.map(nombreDestino);
+
+/** Destino por su id (o null). */
+export const destinoPorId = (id) => DESTINOS.find((d) => d.id === id) || null;
+
 function normaliza(valor) {
-  return String(valor ?? "")
-    .trim()
-    .toLowerCase()
-    .normalize("NFD")
-    .replace(/[̀-ͯ]/g, "");
+  return String(valor ?? "").trim().toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "");
 }
 
 /**
- * ¿El texto corresponde a un destino atendido? Es tolerante con coincidencias
- * parciales (p. ej. "lis" → "Lisbon, Portugal") pero rechaza valores inventados.
- * @param {string} destino
- * @returns {boolean}
+ * Resuelve un texto ("Lisbon, Portugal", "Hotel Aurelia, Lisbon"…) al destino
+ * correspondiente, o null si no atendemos esa ciudad. Tolera coincidencias
+ * parciales por ciudad (p. ej. "lis" → Lisbon).
+ * @param {string} texto
+ * @returns {{id:string,ciudad:string,pais:string}|null}
  */
-export function esDestinoValido(destino) {
-  const q = normaliza(destino);
-  if (q.length < 2) return false;
-  return DESTINOS.some((d) => {
-    const n = normaliza(d);
-    return n === q || n.includes(q) || q.includes(n);
-  });
+export function resolverDestino(texto) {
+  const q = normaliza(texto);
+  if (q.length < 2) return null;
+  return (
+    DESTINOS.find((d) => {
+      const ciudad = normaliza(d.ciudad);
+      return q === ciudad || q.includes(ciudad) || ciudad.includes(q);
+    }) || null
+  );
+}
+
+/** ¿El texto corresponde a un destino atendido? */
+export function esDestinoValido(texto) {
+  return resolverDestino(texto) != null;
 }

@@ -1,5 +1,5 @@
 /* Pantalla 2 — Resultados de búsqueda (listado + filtros). */
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { TopNav } from "../components/TopNav.jsx";
 import { Footer } from "../components/Footer.jsx";
@@ -10,6 +10,7 @@ import { FilterPanel } from "../components/filters/FilterPanel.jsx";
 import { useBooking } from "../context/BookingContext.jsx";
 import { fmtShort, fmtLong } from "../lib/format.js";
 import { HABITACIONES } from "@shared/data/habitaciones.js";
+import { resolverDestino } from "@shared/data/destinos.js";
 import { HOTEL } from "@shared/data/hotel.js";
 import filtrarHabitaciones from "@shared/logic/filtrarHabitaciones.js";
 
@@ -19,9 +20,16 @@ export default function Results() {
   const navigate = useNavigate();
   const { search, setRoom } = useBooking();
 
-  const prices = HABITACIONES.map((r) => r.price);
-  const MIN = Math.min(...prices);
-  const MAX = Math.max(...prices);
+  // Resuelve el destino buscado a una sede y limita el catálogo a esa ubicación.
+  const destino = useMemo(() => resolverDestino(search.destination), [search.destination]);
+  const roomsEnDestino = useMemo(
+    () => (destino ? HABITACIONES.filter((r) => r.destinoId === destino.id) : []),
+    [destino]
+  );
+
+  const prices = roomsEnDestino.map((r) => r.price);
+  const MIN = prices.length ? Math.min(...prices) : 0;
+  const MAX = prices.length ? Math.max(...prices) : 1000;
 
   const [maxPrice, setMaxPrice] = useState(MAX);
   const [types, setTypes] = useState([]);
@@ -29,15 +37,19 @@ export default function Results() {
   const [minRating, setMinRating] = useState(0);
   const [sort, setSort] = useState("popularity");
 
+  // El rango de precio se reajusta al cambiar de destino.
+  useEffect(() => { setMaxPrice(MAX); }, [MAX]);
+
   const typeCounts = useMemo(() => {
     const m = {};
-    HABITACIONES.forEach((r) => (m[r.type] = (m[r.type] || 0) + 1));
+    roomsEnDestino.forEach((r) => (m[r.type] = (m[r.type] || 0) + 1));
     return m;
-  }, []);
+  }, [roomsEnDestino]);
 
   const filtered = useMemo(() => {
+    if (roomsEnDestino.length === 0) return [];
     // CU-02 — filtra por precio, rating y amenidades con la lógica compartida.
-    let list = filtrarHabitaciones(HABITACIONES, {
+    let list = filtrarHabitaciones(roomsEnDestino, {
       precioMax: maxPrice,
       ratingMin: minRating || undefined,
       amenidades: amen,
@@ -49,7 +61,7 @@ export default function Results() {
     else if (sort === "rating") list = [...list].sort((a, b) => b.rating - a.rating);
     else list = [...list].sort((a, b) => b.reviews - a.reviews);
     return list;
-  }, [maxPrice, types, amen, minRating, sort]);
+  }, [roomsEnDestino, maxPrice, types, amen, minRating, sort]);
 
   const reset = () => { setMaxPrice(MAX); setTypes([]); setAmen([]); setMinRating(0); };
   const activeCount = (maxPrice < MAX ? 1 : 0) + types.length + amen.length + (minRating > 0 ? 1 : 0);
@@ -113,6 +125,12 @@ export default function Results() {
             <ul style={{ listStyle: "none", margin: 0, padding: 0, display: "flex", flexDirection: "column", gap: 20 }}>
               {filtered.map((r) => <li key={r.id}><ResultCard room={r} search={search} onOpen={openRoom} onReserve={openRoom} /></li>)}
             </ul>
+          ) : roomsEnDestino.length === 0 ? (
+            <div className="card" style={{ padding: 56, textAlign: "center" }}>
+              <h3 className="display" style={{ fontSize: 20, margin: "0 0 8px" }}>No properties in {search.destination || "that destination"} yet</h3>
+              <p className="muted" style={{ margin: "0 0 20px" }}>We don't have a hotel there for now. Try Lisbon, Porto, Madrid, Barcelona or Paris.</p>
+              <button type="button" className="btn btn--navy" onClick={() => navigate("/")}>Change destination</button>
+            </div>
           ) : (
             <div className="card" style={{ padding: 56, textAlign: "center" }}>
               <h3 className="display" style={{ fontSize: 20, margin: "0 0 8px" }}>No rooms match your filters</h3>

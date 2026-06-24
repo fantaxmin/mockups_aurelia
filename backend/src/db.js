@@ -9,13 +9,15 @@ import fs from "node:fs";
 import path from "node:path";
 import Database from "better-sqlite3";
 import { DB_PATH, TTL_MS, SWEEP_INTERVAL_MS } from "./config.js";
-import { DESTINOS } from "../../shared/data/destinos.js";
+import { DESTINOS, nombreDestino } from "../../shared/data/destinos.js";
+import { HABITACIONES } from "../../shared/data/habitaciones.js";
 
 // Asegura que exista la carpeta de datos.
 fs.mkdirSync(path.dirname(DB_PATH), { recursive: true });
 
 export const db = new Database(DB_PATH);
 db.pragma("journal_mode = WAL");
+db.pragma("foreign_keys = ON");
 
 // --- Esquema -------------------------------------------------------------
 db.exec(`
@@ -45,17 +47,42 @@ db.exec(`
     created_at        INTEGER NOT NULL,
     expires_at        INTEGER NOT NULL
   );
+`);
 
-  CREATE TABLE IF NOT EXISTS destinos (
-    id     INTEGER PRIMARY KEY AUTOINCREMENT,
-    nombre TEXT NOT NULL UNIQUE
+// --- Destinos + Habitaciones (catálogo con llave foránea) ----------------
+// La tabla `destinos` es la referenciada; cada habitación apunta a un destino
+// mediante `destino_id` (FK). Se recrean desde la fuente compartida para
+// migrar el esquema antiguo y mantener la integridad referencial.
+db.exec(`
+  DROP TABLE IF EXISTS habitaciones;
+  DROP TABLE IF EXISTS destinos;
+
+  CREATE TABLE destinos (
+    id     TEXT PRIMARY KEY,
+    ciudad TEXT NOT NULL,
+    pais   TEXT,
+    nombre TEXT NOT NULL
+  );
+
+  CREATE TABLE habitaciones (
+    id         TEXT PRIMARY KEY,
+    nombre     TEXT NOT NULL,
+    tipo       TEXT NOT NULL,
+    precio     REAL NOT NULL,
+    rating     REAL,
+    destino_id TEXT NOT NULL REFERENCES destinos(id)
   );
 `);
 
-// --- Destinos (catálogo del buscador) -----------------------------------
-// Se siembra desde la lista compartida; INSERT OR IGNORE lo hace idempotente.
-const insertDestino = db.prepare("INSERT OR IGNORE INTO destinos (nombre) VALUES (?)");
-db.transaction((lista) => { for (const n of lista) insertDestino.run(n); })(DESTINOS);
+const insertDestino = db.prepare("INSERT INTO destinos (id, ciudad, pais, nombre) VALUES (@id, @ciudad, @pais, @nombre)");
+db.transaction((lista) => {
+  for (const d of lista) insertDestino.run({ id: d.id, ciudad: d.ciudad, pais: d.pais || "", nombre: nombreDestino(d) });
+})(DESTINOS);
+
+const insertHab = db.prepare("INSERT INTO habitaciones (id, nombre, tipo, precio, rating, destino_id) VALUES (@id, @nombre, @tipo, @precio, @rating, @destino_id)");
+db.transaction((lista) => {
+  for (const h of lista) insertHab.run({ id: h.id, nombre: h.name, tipo: h.type, precio: h.price, rating: h.rating, destino_id: h.destinoId });
+})(HABITACIONES);
 
 /**
  * Lista destinos del catálogo, opcionalmente filtrados por texto (autocompletado).
@@ -72,6 +99,22 @@ export function listarDestinos(q = "", limit = 20) {
       .map((r) => r.nombre);
   }
   return db.prepare("SELECT nombre FROM destinos ORDER BY nombre LIMIT ?").all(lim).map((r) => r.nombre);
+}
+
+/**
+ * Habitaciones de un destino, resueltas por la FK (JOIN destinos↔habitaciones).
+ * @param {string} destinoId
+ */
+export function listarHabitacionesPorDestino(destinoId) {
+  return db
+    .prepare(
+      `SELECT h.id, h.nombre, h.tipo, h.precio, h.rating, h.destino_id AS destinoId,
+              d.ciudad, d.pais
+         FROM habitaciones h JOIN destinos d ON d.id = h.destino_id
+        WHERE h.destino_id = ?
+        ORDER BY h.precio`
+    )
+    .all(destinoId);
 }
 
 // --- Usuario de prueba (semilla) ----------------------------------------

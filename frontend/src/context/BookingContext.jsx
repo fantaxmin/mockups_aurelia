@@ -4,7 +4,7 @@
  */
 import { createContext, useContext, useCallback, useMemo, useState } from "react";
 import { HABITACIONES } from "@shared/data/habitaciones.js";
-import { sumarDias } from "@shared/logic/fechas.js";
+import { sumarDias, hoyISO } from "@shared/logic/fechas.js";
 import { getUsuarioPrueba } from "../lib/api.js";
 
 const BookingContext = createContext(null);
@@ -18,17 +18,11 @@ const USUARIO_PRUEBA = {
   nacionalidad: "Portugal",
 };
 
-function hoyISO() {
-  const d = new Date();
-  const p = (n) => String(n).padStart(2, "0");
-  return d.getFullYear() + "-" + p(d.getMonth() + 1) + "-" + p(d.getDate());
-}
-
 export function BookingProvider({ children }) {
   const HOY = hoyISO();
 
   const [search, setSearch] = useState({
-    destination: "Hotel Aurelia, Lisbon",
+    destination: "Lisbon, Portugal",
     checkIn: HOY,
     checkOut: sumarDias(HOY, 3),
     adults: 2,

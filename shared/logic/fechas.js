@@ -11,6 +11,11 @@ export function aISO(fecha) {
   return fecha.getFullYear() + "-" + pad(fecha.getMonth() + 1) + "-" + pad(fecha.getDate());
 }
 
+/** Fecha de hoy en formato ISO "YYYY-MM-DD" (zona local). */
+export function hoyISO() {
+  return aISO(new Date());
+}
+
 export function desdeISO(iso) {
   const [y, m, d] = String(iso).split("-").map(Number);
   return new Date(y, m - 1, d);

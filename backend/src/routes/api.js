@@ -12,7 +12,7 @@ import { HABITACIONES, AMENIDADES, TIPOS_HABITACION } from "../../../shared/data
 import { RESENAS } from "../../../shared/data/resenas.js";
 import { HOTEL, UBICACION, GALERIA } from "../../../shared/data/hotel.js";
 import { crearReserva, consultarReserva } from "../services/reservas.js";
-import { obtenerUsuarioPrueba, listarDestinos } from "../db.js";
+import { obtenerUsuarioPrueba, listarDestinos, listarHabitacionesPorDestino } from "../db.js";
 
 const router = Router();
 
@@ -38,6 +38,11 @@ router.get("/usuario-prueba", (_req, res) => {
 // Catálogo de destinos (autocompletado del buscador). ?q= filtra, ?limit= acota.
 router.get("/destinos", (req, res) => {
   res.json(listarDestinos(req.query.q, req.query.limit));
+});
+
+// Habitaciones de un destino, resueltas por la FK destino_id (JOIN en SQLite).
+router.get("/destinos/:id/habitaciones", (req, res) => {
+  res.json(listarHabitacionesPorDestino(req.params.id));
 });
 
 // CU-02 — listado/filtrado de habitaciones. Filtros opcionales por query string.

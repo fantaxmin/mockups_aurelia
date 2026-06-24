@@ -1,5 +1,4 @@
 /* Pie de página del sitio. */
-import { Link } from "react-router-dom";
 import { HOTEL, UBICACION } from "@shared/data/hotel.js";
 
 const NAV_COLS = [

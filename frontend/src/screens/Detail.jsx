@@ -10,6 +10,7 @@ import { BookingCard } from "../components/detail/BookingCard.jsx";
 import { ReviewCard } from "../components/reviews/ReviewCard.jsx";
 import { useBooking } from "../context/BookingContext.jsx";
 import { HABITACIONES, AMENIDADES } from "@shared/data/habitaciones.js";
+import { destinoPorId, nombreDestino } from "@shared/data/destinos.js";
 import { RESENAS } from "@shared/data/resenas.js";
 import { UBICACION } from "@shared/data/hotel.js";
 
@@ -64,7 +65,7 @@ export default function Detail() {
               <span className="muted">· {habitacion.reviews} reviews</span>
             </span>
             <span className="divider-v" style={{ height: 16 }} aria-hidden="true" />
-            <span className="muted" style={{ display: "inline-flex", alignItems: "center", gap: 7 }}><Icon name="pin" size={15} />{UBICACION}</span>
+            <span className="muted" style={{ display: "inline-flex", alignItems: "center", gap: 7 }}><Icon name="pin" size={15} />{nombreDestino(destinoPorId(habitacion.destinoId)) || UBICACION}</span>
           </div>
 
           <ul className="flex flex-wrap" style={{ listStyle: "none", gap: 28, margin: 0, marginTop: 26, padding: 0, paddingBottom: 28, borderBottom: "1px solid var(--line)" }}>
